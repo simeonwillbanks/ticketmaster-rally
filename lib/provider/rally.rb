@@ -3,7 +3,7 @@ module TicketMaster::Provider
   module Rally
     include TicketMaster::Provider::Base
     #TICKET_API = Rally::Ticket
-    #PROJECT_API = Rally::Project
+    #PROJECT_API = RallyAPI::Project
     
     # This is for cases when you want to instantiate using TicketMaster::Provider::Rally.new(auth)
     def self.new(auth = {})
@@ -18,12 +18,27 @@ module TicketMaster::Provider
       if (auth.url.blank? and auth.username.blank? and auth.password.blank?)
         raise "Please you should provide a Rally url, username and password"
       end
-      RallyRestAPI.new(:username => auth.username, 
-                       :password => auth.password,
-                       :base_url => auth.url)
+      TicketMaster::Provider::Rally.rally = RallyAPI.authenticate(auth.url, auth.username, auth.password)
     end
     
     # declare needed overloaded methods here
+    
+    # Upon auth, collect all Rally projects
+    def projects(*options)
+      if options.empty?
+        Project.find(:all).collect{|repo| Project.new repo }
+      elsif options.first.is_a?(Array)
+        options.collect{ |name| Project.find(:user => @client.user.username, :repo => name)}
+      end
+    end
+    
+    def self.rally=(rally_instance)
+      @rally = rally_instance
+    end
+
+    def self.rally
+      @rally
+    end
     
   end
 end
