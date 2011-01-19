@@ -2,11 +2,61 @@ module TicketMaster::Provider
   module Rally
     # Project class for ticketmaster-rally
     #
+    # Remaps 
     #
+    # id => oid
+    # created_at => creation_date
+    # updated_at => creation_date
     class Project < TicketMaster::Provider::Base::Project
-      #API = Rally::Project # The class to access the api's projects
-      # declare needed overloaded methods here
+
+      def initialize(*object)
+        if object.first
+          project = object.first
+          hash = {:oid => project.oid, 
+                  :name => project.name, 
+                  :description => project.description,
+                  :created_at => project.creation_date, 
+                  # Rally Project object does not have a modified time
+                  :updated_at => project.creation_date}           
+          super hash
+        end
+      end
+
+      # Rally REST API aliases String and Fixnum :to_q :to_s
+      # However, it does not alias Bignum
+      # If a ID is a Bignum, the API will throw undefined method
+      # Because of this, we pass all IDs to API as strings
+      # Ticketmaster specs set IDs as integers, so coerce type on get 
+      def id
+        oid.to_i
+      end
+
+      def id=(oid)
+        id = oid
+      end
+
+      # Accepts an integer id and returns the single project instance
+      def self.find_by_id(id)
+        # Rally Ruby REST API expects IDs as strings
+        # See note on Project::id
+        id = id.to_s unless id.is_a? String
+        query_result = TicketMaster::Provider::Rally.rally.find(:project, :fetch => true) { equal :object_i_d, id }
+        self.new query_result.first
+      end
       
+      # Accepts an attributes hash and returns all projects matching those attributes in an array
+      # Should return all projects if the attributes hash is empty
+      def self.find_by_attributes(attributes = {})
+        self.search(attributes)
+      end            
+      
+      # This is a helper method to find
+      def self.search(options = {}, limit = 1000)
+        projects = TicketMaster::Provider::Rally.rally.find_all(:project).collect do |project| 
+          self.new project
+        end
+        search_by_attribute(projects, options, limit)
+      end      
       
       # copy from this.copy(that) copies that into this
       def copy(project)

@@ -3,9 +3,9 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 describe "Ticketmaster::Provider::Rally" do
   
   before(:all) do 
-    @auth = {:url => 'https://trial.rallydev.com/slm', 
-             :username => 'simeon.willbanks@publish2.com', 
-             :password => 'Password'} 
+    @auth = {:url => 'https://community.rallydev.com/slm', 
+             :username => 'ticketmaster-rally@simeonfosterwillbanks.com', 
+             :password => 'Password'}
   end
 
   it "should be able to instantiate a new instance directly" do
