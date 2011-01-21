@@ -15,9 +15,9 @@ module TicketMaster::Provider
           hash = {:oid => project.oid, 
                   :name => project.name, 
                   :description => project.description,
-                  :created_at => project.creation_date, 
+                  :created_at => Time.parse(project.creation_date), 
                   # Rally Project object does not have a modified time
-                  :updated_at => project.creation_date}           
+                  :updated_at => Time.parse(project.creation_date)}           
           super hash
         end
       end
