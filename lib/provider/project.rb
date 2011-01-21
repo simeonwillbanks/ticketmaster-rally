@@ -12,6 +12,9 @@ module TicketMaster::Provider
       def initialize(*object)
         if object.first
           project = object.first
+          # Store Rally Project object in Ticketmaster Project object
+          # This allows Ticketmaster to perform updates on Rally Project
+          @system_data = {:client => project}
           hash = {:oid => project.oid, 
                   :name => project.name, 
                   :description => project.description,
