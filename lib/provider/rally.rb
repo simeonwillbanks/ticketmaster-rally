@@ -13,7 +13,7 @@ module TicketMaster::Provider
     def authorize(auth = {})
       @authentication ||= TicketMaster::Authenticator.new(auth)
       auth = @authentication
-      if (auth.url.blank? and auth.username.blank? and auth.password.blank?)
+      if ((auth.url.nil? || auth.url.empty?) and (auth.username.nil? || auth.username.empty?) and (auth.password.nil? || auth.password.empty?))
         raise "Please you should provide a Rally url, username and password"
       end
       TicketMaster::Provider::Rally.rally = RallyRestAPI.new(:username => auth.username, 
