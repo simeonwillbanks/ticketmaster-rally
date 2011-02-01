@@ -3,9 +3,9 @@ require 'rally_rest_api'
 
 #RALLY_LOGGER_PATH = nil
 # Turn on Rally REST API logging by setting constant to path
-RALLY_LOGGER_PATH = '/Users/sfw/Desktop/rally.log'
+RALLY_LOGGER_PATH = File.join(File.dirname(__FILE__), '..', 'log', 'rally.log')
 
-if RALLY_LOGGER_PATH
+if RALLY_LOGGER_PATH && File.exists?(File.dirname(RALLY_LOGGER_PATH))
   require 'logger'
 end
 
