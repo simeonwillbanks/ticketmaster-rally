@@ -1,4 +1,4 @@
-Copyright (c) 2011 Simeon Willbanks, Rob Kaufman
+Copyright (c) 2011 Simeon F. Willbanks, Rob Kaufman
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

@@ -46,7 +46,7 @@ If you see or find any issues, feel free to open up an issue report.
 
 ## Copyright
 
-Copyright (c) 2011 Simeon Willbanks. See LICENSE.txt for
+Copyright (c) 2011 Simeon F. Willbanks. See LICENSE.txt for
 further details.
 
 
