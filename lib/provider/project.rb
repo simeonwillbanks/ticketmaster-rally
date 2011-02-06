@@ -31,12 +31,12 @@ module TicketMaster::Provider
       # Because of this, we pass all IDs to API as strings
       # Ticketmaster specs set IDs as integers, so coerce type on get 
       def id
-        oid.to_i
+        self[:oid].to_i
       end
 
-      def id=(oid)
-        id = oid
-      end
+      def id=(id)
+        self[:oid] = id.to_s
+      end      
 
       # Accepts an integer id and returns the single project instance
       def self.find_by_id(id)

@@ -23,6 +23,9 @@ module TicketMaster::Provider
           hash = {
             :oid => ticket.oid,
             :project_id => project_id,
+            # Rally symbol for Tasks and Defects
+            # :defect or :task
+            :type => ticket.type_as_symbol,
             :title => ticket.name,
             :description => ticket.description,
             :requestor => ticket.submitted_by,
@@ -52,20 +55,20 @@ module TicketMaster::Provider
       # Because of this, we pass all IDs to API as strings
       # Ticketmaster specs set IDs as integers, so coerce type on get 
       def id
-        oid.to_i
+        self[:oid].to_i
       end
 
-      def id=(oid)
-        id = oid
-      end      
-
+      def id=(id)
+        self[:oid] = id.to_s
+      end 
+      
       def self.find_by_id(project_id, id)
         project = self.rally_project(project_id)
         # Rally Ruby REST API expects IDs as strings
         # See note on Project::id
         id = id.to_s unless id.is_a? String
         query_result = TicketMaster::Provider::Rally.rally.find(:defect, :fetch => true, :project => project) { equal :object_i_d, id }
-        self.new query_result.first
+        self.new query_result.first, project_id
       end
 
       # Accepts a project id and attributes hash and returns all 
@@ -80,11 +83,32 @@ module TicketMaster::Provider
         project = self.rally_project(project_id)
         query_result = TicketMaster::Provider::Rally.rally.find_all(:defect, :project => project)
         tickets = query_result.collect do |ticket| 
-          self.new ticket
+          self.new ticket, project_id
         end
         search_by_attribute(tickets, options, limit)
       end
       
+      def save
+        if self[:oid].empty?
+          @system_data[:client].save!
+        else
+          hash = {
+            :name => self[:title],
+            :description => self[:description],
+            :submitted_by => self[:requestor],
+            :schedule_state => self[:resolution], 
+            :state => self[:status]     
+          }
+          # Rally optional attributes
+          hash[:owner] = self[:assignee] if self[:assignee]
+          hash[:priority] = self[:priority] if self[:priority]
+          # Update the resource. This will re-read the resource after the update
+          ticket_updated = @system_data[:client].update(hash)
+          # Update Ticketmaster Ticket object updated_at attribute
+          self[:updated_at] = Time.parse(ticket_updated.last_update_date)
+        end
+      end
+            
       private
       
         def self.rally_project(project_id)
