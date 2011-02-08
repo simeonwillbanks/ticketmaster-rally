@@ -95,18 +95,9 @@ module TicketMaster::Provider
       def self.create(*options)
         options = options.shift
         project = self.rally_project(options[:project_id])
-        hash = {
-          :project => project,
-          :name => options[:title],
-          :description => options[:description],
-          :schedule_state => options[:resolution] ||= "Defined", 
-          :state => options[:status] ||= "Submitted"     
-        }
-        # Rally optional attributes
-        hash[:submitted_by] = options[:requestor] if options[:requestor]
-        hash[:owner] = options[:assignee] if options[:assignee]
-        hash[:priority] = options[:priority] if options[:priority]
-        defect = TicketMaster::Provider::Rally.rally.create(:defect, hash)
+        ticket = self.to_rally(options)
+        ticket[:project] = project
+        defect = TicketMaster::Provider::Rally.rally.create(:defect, ticket)
         self.new defect
       end
       
@@ -114,18 +105,8 @@ module TicketMaster::Provider
         if self[:oid].empty?
           @system_data[:client].save!
         else
-          hash = {
-            :name => self[:title],
-            :description => self[:description],
-            :schedule_state => self[:resolution], 
-            :state => self[:status]     
-          }
-          # Rally optional attributes
-          hash[:submitted_by] = self[:requestor] if self[:requestor]
-          hash[:owner] = self[:assignee] if self[:assignee]
-          hash[:priority] = self[:priority] if self[:priority]
-          # Update the resource. This will re-read the resource after the update
-          ticket_updated = @system_data[:client].update(hash)
+          ticket = self.class.to_rally(self)
+          ticket_updated = @system_data[:client].update(ticket)
           # Update Ticketmaster Ticket object updated_at attribute
           self.updated_at = ticket_updated.last_update_date
         end
@@ -137,7 +118,21 @@ module TicketMaster::Provider
           ticketmaster_project = provider_parent(self)::Project.find_by_id(project_id)
           ticketmaster_project.system_data[:client]
         end
-      
+        
+        def self.to_rally(hash)
+          ticket = {
+            :name => hash[:title],
+            :description => hash[:description],
+            :schedule_state => hash[:resolution] ||= "Defined", 
+            :state => hash[:status] ||= "Submitted"     
+          }
+          # Rally optional attributes
+          ticket[:submitted_by] = hash[:requestor] if hash[:requestor]
+          ticket[:owner] = hash[:assignee] if hash[:assignee]
+          ticket[:priority] = hash[:priority] if hash[:priority]
+          ticket          
+        end
+        
     end
   end
 end
