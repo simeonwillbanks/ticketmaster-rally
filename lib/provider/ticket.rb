@@ -62,6 +62,10 @@ module TicketMaster::Provider
         self[:oid] = id.to_s
       end 
       
+      def updated_at=(last_update_date)
+        self[:updated_at] = Time.parse(last_update_date)
+      end
+      
       def self.find_by_id(project_id, id)
         project = self.rally_project(project_id)
         # Rally Ruby REST API expects IDs as strings
@@ -88,6 +92,24 @@ module TicketMaster::Provider
         search_by_attribute(tickets, options, limit)
       end
       
+      def self.create(*options)
+        options = options.shift
+        project = self.rally_project(options[:project_id])
+        hash = {
+          :project => project,
+          :name => options[:title],
+          :description => options[:description],
+          :schedule_state => options[:resolution] ||= "Defined", 
+          :state => options[:status] ||= "Submitted"     
+        }
+        # Rally optional attributes
+        hash[:submitted_by] = options[:requestor] if options[:requestor]
+        hash[:owner] = options[:assignee] if options[:assignee]
+        hash[:priority] = options[:priority] if options[:priority]
+        defect = TicketMaster::Provider::Rally.rally.create(:defect, hash)
+        self.new defect
+      end
+      
       def save
         if self[:oid].empty?
           @system_data[:client].save!
@@ -95,20 +117,20 @@ module TicketMaster::Provider
           hash = {
             :name => self[:title],
             :description => self[:description],
-            :submitted_by => self[:requestor],
             :schedule_state => self[:resolution], 
             :state => self[:status]     
           }
           # Rally optional attributes
+          hash[:submitted_by] = self[:requestor] if self[:requestor]
           hash[:owner] = self[:assignee] if self[:assignee]
           hash[:priority] = self[:priority] if self[:priority]
           # Update the resource. This will re-read the resource after the update
           ticket_updated = @system_data[:client].update(hash)
           # Update Ticketmaster Ticket object updated_at attribute
-          self[:updated_at] = Time.parse(ticket_updated.last_update_date)
+          self.updated_at = ticket_updated.last_update_date
         end
       end
-            
+                  
       private
       
         def self.rally_project(project_id)

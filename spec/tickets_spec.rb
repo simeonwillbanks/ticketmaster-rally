@@ -20,7 +20,7 @@ describe "Ticketmaster::Provider::Rally::Ticket" do
     @project = @ticketmaster.project(@project_id)
     @klass = TicketMaster::Provider::Rally::Ticket
   end
-
+  
   it "should return the ticket class" do
     @project.ticket.should == @klass
   end
@@ -69,13 +69,9 @@ describe "Ticketmaster::Provider::Rally::Ticket" do
     ticket.description.should == @ticket_description
   end
   
-
-=begin          
-
   it "should be able to create a new ticket" do
-    @ticket = @project.ticket!({:summary => 'Testing', :description => "Here we go"})
-    @ticket.should be_an_instance_of(@klass)
+    ticket = @project.ticket!({:title => 'Testing', :description => "Here we go"})
+    ticket.should be_an_instance_of(@klass)
   end
-=end
 
 end
