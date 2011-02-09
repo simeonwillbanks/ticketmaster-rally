@@ -14,6 +14,8 @@ module TicketMaster::Provider
     # assignee => owner    
     class Ticket < TicketMaster::Provider::Base::Ticket
 
+      # NOTE Rob I don't understand why you are taking in multiple arguments and then destroying those arguments.  
+      #      Why not just mandate a single arg, or have (project_id, *options) as in the ticketmaster/dummy?
       def initialize(*object)
         if object.first
           args = object
@@ -70,6 +72,7 @@ module TicketMaster::Provider
         project = self.rally_project(project_id)
         # Rally Ruby REST API expects IDs as strings
         # See note on Project::id
+        # NOTE Rob is_a? here is trading an expensive introspection for a heavily optemized String.to_s call.  Better just to .to_s
         id = id.to_s unless id.is_a? String
         query_result = TicketMaster::Provider::Rally.rally.find(:defect, :fetch => true, :project => project) { equal :object_i_d, id }
         self.new query_result.first, project_id
@@ -92,6 +95,8 @@ module TicketMaster::Provider
         search_by_attribute(tickets, options, limit)
       end
       
+      # NOTE Rob I don't understand why you are taking in multiple arguments and then destroying those arguments.
+      #      Why not just mandate a single arg, or have (oject, *options)?
       def self.create(*options)
         options = options.shift
         project = self.rally_project(options[:project_id])
