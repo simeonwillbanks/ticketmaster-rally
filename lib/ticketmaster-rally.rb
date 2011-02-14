@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'rally_rest_api'
+require 'time'
 
 #RALLY_LOGGER_PATH = nil
 # Turn on Rally REST API logging by setting constant to path
