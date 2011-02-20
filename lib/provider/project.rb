@@ -41,9 +41,8 @@ module TicketMaster::Provider
       # Accepts an integer id and returns the single project instance
       def self.find_by_id(id)
         # Rally Ruby REST API expects IDs as strings
-        # See note on Project::id
-        id = id.to_s unless id.is_a? String
-        query_result = TicketMaster::Provider::Rally.rally.find(:project, :fetch => true) { equal :object_i_d, id }
+        # For id.to_s see note on Project::id
+        query_result = TicketMaster::Provider::Rally.rally.find(:project, :fetch => true) { equal :object_i_d, id.to_s }
         self.new query_result.first
       end
       

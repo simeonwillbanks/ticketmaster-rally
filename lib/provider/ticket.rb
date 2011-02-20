@@ -71,10 +71,8 @@ module TicketMaster::Provider
       def self.find_by_id(project_id, id)
         project = self.rally_project(project_id)
         # Rally Ruby REST API expects IDs as strings
-        # See note on Project::id
-        # NOTE Rob is_a? here is trading an expensive introspection for a heavily optemized String.to_s call.  Better just to .to_s
-        id = id.to_s unless id.is_a? String
-        query_result = TicketMaster::Provider::Rally.rally.find(:defect, :fetch => true, :project => project) { equal :object_i_d, id }
+       # For id.to_s see note on Project::id
+        query_result = TicketMaster::Provider::Rally.rally.find(:defect, :fetch => true, :project => project) { equal :object_i_d, id.to_s }
         self.new query_result.first, project_id
       end
 
