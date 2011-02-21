@@ -26,8 +26,9 @@ describe "Ticketmaster::Provider::Rally::Ticket" do
   end
 
   it "should be able to load all tickets" do 
-    @project.tickets.should be_an_instance_of(Array)
-    @project.tickets.first.should be_an_instance_of(@klass)
+    tickets = @project.tickets
+    tickets.should be_an_instance_of(Array)
+    tickets.first.should be_an_instance_of(@klass)
   end
 
   it "should be able to load all tickets based on array of id's" do
@@ -56,6 +57,34 @@ describe "Ticketmaster::Provider::Rally::Ticket" do
     tickets.first.created_at.utc.strftime('%a %b %d %H:%M:%S UTC %Y').should == @ticket_created_at
   end
 
+  it "should be able to load all tickets of a given type" do
+    tickets = @project.tickets(:type => :defect)
+    tickets.should be_an_instance_of(Array)
+    tickets.first.should be_an_instance_of(@klass)
+    tickets.first.description.should == @ticket_description
+    tickets.first.project_id.should == @project_id
+    tickets.collect do |tick|
+      tick.type.should == :defect
+    end
+
+    tickets = @project.tickets(:type => :task)
+    tickets.should be_an_instance_of(Array)
+    tickets.first.should be_an_instance_of(@klass)
+    tickets.first.project_id.should == @project_id
+    tickets.collect do |tick|
+      tick.type.should == :task
+    end
+
+    tickets = @project.tickets(:type => :hierarchical_requirement)
+    tickets.should be_an_instance_of(Array)
+    tickets.first.should be_an_instance_of(@klass)
+    tickets.first.project_id.should == @project_id
+    tickets.collect do |tick|
+      tick.type.should == :hierarchical_requirement
+    end
+
+  end
+
   it "should be able to update and save a ticket" do
     ticket = @project.ticket(@ticket_id)
     ticket.description = "A brand new awesome description"
@@ -72,6 +101,14 @@ describe "Ticketmaster::Provider::Rally::Ticket" do
   it "should be able to create a new ticket" do
     ticket = @project.ticket!({:title => 'Testing', :description => "Here we go"})
     ticket.should be_an_instance_of(@klass)
+    ticket.type.should == :defect
   end
+
+  it "should be able to create a new ticket" do
+    ticket = @project.ticket!({:title => 'TaskTesting', :description => "Here we go tasks", :type => :task, :status => "Defined", :work_product => @project.tickets(:type => :defect).first.oid})
+    ticket.should be_an_instance_of(@klass)
+    ticket.type.should == :task
+  end
+
 
 end

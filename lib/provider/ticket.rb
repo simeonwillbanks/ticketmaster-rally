@@ -14,8 +14,6 @@ module TicketMaster::Provider
     # assignee => owner    
     class Ticket < TicketMaster::Provider::Base::Ticket
 
-      # NOTE Rob I don't understand why you are taking in multiple arguments and then destroying those arguments.  
-      #      Why not just mandate a single arg, or have (project_id, *options) as in the ticketmaster/dummy?
       def initialize(*object)
         if object.first
           args = object
@@ -26,7 +24,7 @@ module TicketMaster::Provider
             :oid => ticket.oid,
             :project_id => project_id,
             # Rally symbol for Tasks and Defects
-            # :defect or :task
+            # :hierarchical_requirement, :defect or :task (:artifact for all)
             :type => ticket.type_as_symbol,
             :title => ticket.name,
             :description => ticket.description,
@@ -72,7 +70,7 @@ module TicketMaster::Provider
         project = self.rally_project(project_id)
         # Rally Ruby REST API expects IDs as strings
        # For id.to_s see note on Project::id
-        query_result = TicketMaster::Provider::Rally.rally.find(:defect, :fetch => true, :project => project) { equal :object_i_d, id.to_s }
+        query_result = TicketMaster::Provider::Rally.rally.find(:artifact, :fetch => true, :project => project) { equal :object_i_d, id.to_s }
         self.new query_result.first, project_id
       end
 
@@ -86,22 +84,23 @@ module TicketMaster::Provider
       # This is a helper method to find
       def self.search(project_id, options = {}, limit = 1000)
         project = self.rally_project(project_id)
-        query_result = TicketMaster::Provider::Rally.rally.find_all(:defect, :project => project)
+        search_type = options.delete(:type) || :artifact
+        query_result = TicketMaster::Provider::Rally.rally.find_all(search_type, :project => project)
         tickets = query_result.collect do |ticket| 
           self.new ticket, project_id
         end
         search_by_attribute(tickets, options, limit)
       end
       
-      # NOTE Rob I don't understand why you are taking in multiple arguments and then destroying those arguments.
-      #      Why not just mandate a single arg, or have (oject, *options)?
       def self.create(*options)
         options = options.shift
         project = self.rally_project(options[:project_id])
         ticket = self.to_rally(options)
         ticket[:project] = project
-        defect = TicketMaster::Provider::Rally.rally.create(:defect, ticket)
-        self.new defect
+        # Not sure about making the defect the default here, thoughts?
+        new_type = options[:type] || :defect
+        new_ticket = TicketMaster::Provider::Rally.rally.create(new_type, ticket)
+        self.new new_ticket
       end
       
       def save
@@ -133,6 +132,7 @@ module TicketMaster::Provider
           ticket[:submitted_by] = hash[:requestor] if hash[:requestor]
           ticket[:owner] = hash[:assignee] if hash[:assignee]
           ticket[:priority] = hash[:priority] if hash[:priority]
+          ticket[:work_product] = hash[:work_product] if hash[:work_product]
           ticket          
         end
         
