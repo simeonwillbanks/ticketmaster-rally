@@ -25,7 +25,7 @@ module TicketMaster::Provider
             :project_id => project_id,
             # Rally symbol for Tasks and Defects
             # :hierarchical_requirement, :defect or :task (:artifact for all)
-            :type => ticket.type_as_symbol,
+            :type_as_symbol => ticket.type_as_symbol,
             :title => ticket.name,
             :description => ticket.description,
             :requestor => ticket.submitted_by,
@@ -84,7 +84,7 @@ module TicketMaster::Provider
       # This is a helper method to find
       def self.search(project_id, options = {}, limit = 1000)
         project = self.rally_project(project_id)
-        search_type = options.delete(:type) || :artifact
+        search_type = options.delete(:type_as_symbol) || :artifact
         query_result = TicketMaster::Provider::Rally.rally.find_all(search_type, :project => project)
         tickets = query_result.collect do |ticket| 
           self.new ticket, project_id
@@ -98,7 +98,7 @@ module TicketMaster::Provider
         ticket = self.to_rally(options)
         ticket[:project] = project
         # Not sure about making the defect the default here, thoughts?
-        new_type = options[:type] || :defect
+        new_type = options[:type_as_symbol] || :defect
         new_ticket = TicketMaster::Provider::Rally.rally.create(new_type, ticket)
         self.new new_ticket
       end

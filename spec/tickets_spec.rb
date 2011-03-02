@@ -58,29 +58,29 @@ describe "Ticketmaster::Provider::Rally::Ticket" do
   end
 
   it "should be able to load all tickets of a given type" do
-    tickets = @project.tickets(:type => :defect)
+    tickets = @project.tickets(:type_as_symbol => :defect)
     tickets.should be_an_instance_of(Array)
     tickets.first.should be_an_instance_of(@klass)
     tickets.first.description.should == @ticket_description
     tickets.first.project_id.should == @project_id
     tickets.collect do |tick|
-      tick.type.should == :defect
+      tick.type_as_symbol.should == :defect
     end
 
-    tickets = @project.tickets(:type => :task)
+    tickets = @project.tickets(:type_as_symbol => :task)
     tickets.should be_an_instance_of(Array)
     tickets.first.should be_an_instance_of(@klass)
     tickets.first.project_id.should == @project_id
     tickets.collect do |tick|
-      tick.type.should == :task
+      tick.type_as_symbol.should == :task
     end
 
-    tickets = @project.tickets(:type => :hierarchical_requirement)
+    tickets = @project.tickets(:type_as_symbol => :hierarchical_requirement)
     tickets.should be_an_instance_of(Array)
     tickets.first.should be_an_instance_of(@klass)
     tickets.first.project_id.should == @project_id
     tickets.collect do |tick|
-      tick.type.should == :hierarchical_requirement
+      tick.type_as_symbol.should == :hierarchical_requirement
     end
 
   end
@@ -101,13 +101,13 @@ describe "Ticketmaster::Provider::Rally::Ticket" do
   it "should be able to create a new ticket" do
     ticket = @project.ticket!({:title => 'Testing', :description => "Here we go"})
     ticket.should be_an_instance_of(@klass)
-    ticket.type.should == :defect
+    ticket.type_as_symbol.should == :defect
   end
 
   it "should be able to create a new ticket" do
-    ticket = @project.ticket!({:title => 'TaskTesting', :description => "Here we go tasks", :type => :task, :status => "Defined", :work_product => @project.tickets(:type => :defect).first.oid})
+    ticket = @project.ticket!({:title => 'TaskTesting', :description => "Here we go tasks", :type_as_symbol => :task, :status => "Defined", :work_product => @project.tickets(:type_as_symbol => :defect).first.oid})
     ticket.should be_an_instance_of(@klass)
-    ticket.type.should == :task
+    ticket.type_as_symbol.should == :task
   end
 
 
