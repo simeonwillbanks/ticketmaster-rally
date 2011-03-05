@@ -69,7 +69,7 @@ module TicketMaster::Provider
       def self.find_by_id(project_id, id)
         project = self.rally_project(project_id)
         # Rally Ruby REST API expects IDs as strings
-       # For id.to_s see note on Project::id
+        # For id.to_s see note on Project::id
         query_result = TicketMaster::Provider::Rally.rally.find(:artifact, :fetch => true, :project => project) { equal :object_i_d, id.to_s }
         self.new query_result.first, project_id
       end
@@ -85,7 +85,13 @@ module TicketMaster::Provider
       def self.search(project_id, options = {}, limit = 1000)
         project = self.rally_project(project_id)
         search_type = options.delete(:type_as_symbol) || :artifact
-        query_result = TicketMaster::Provider::Rally.rally.find_all(search_type, :project => project)
+        # Convert Ticketmaster hash keys to Rally hash keys for Rally query params
+        query_parameters = self.to_rally_query_parameters(options) 
+        query_result = TicketMaster::Provider::Rally.rally.find_all(search_type, :project => project){ 
+          query_parameters.each do |key, value|
+            equal key, value
+          end
+        }
         tickets = query_result.collect do |ticket| 
           self.new ticket, project_id
         end
@@ -95,7 +101,7 @@ module TicketMaster::Provider
       def self.create(*options)
         options = options.shift
         project = self.rally_project(options[:project_id])
-        ticket = self.to_rally(options)
+        ticket = self.to_rally_object(options)
         ticket[:project] = project
         # Not sure about making the defect the default here, thoughts?
         new_type = options[:type_as_symbol] || :defect
@@ -107,7 +113,7 @@ module TicketMaster::Provider
         if self[:oid].empty?
           @system_data[:client].save!
         else
-          ticket = self.class.to_rally(self)
+          ticket = self.class.to_rally_object(self)
           ticket_updated = @system_data[:client].update(ticket)
           # Update Ticketmaster Ticket object updated_at attribute
           self.updated_at = ticket_updated.last_update_date
@@ -121,7 +127,7 @@ module TicketMaster::Provider
           ticketmaster_project.system_data[:client]
         end
         
-        def self.to_rally(hash)
+        def self.to_rally_object(hash)
           ticket = {
             :name => hash[:title],
             :description => hash[:description],
@@ -134,6 +140,21 @@ module TicketMaster::Provider
           ticket[:priority] = hash[:priority] if hash[:priority]
           ticket[:work_product] = hash[:work_product] if hash[:work_product]
           ticket          
+        end
+        
+        # Transform options hash into query parameters block
+        def self.to_rally_query_parameters(hash)
+          query_parameters = {}
+          query_parameters[:schedule_state] = hash[:resolution] ? hash[:resolution] : "Defined"    
+          query_parameters[:state] = hash[:status] ? hash[:status] : "Submitted"    
+          query_parameters[:object_i_d] = hash[:id].to_s if hash[:id]
+          query_parameters[:name] = hash[:title] if hash[:title]
+          query_parameters[:description] = hash[:description] if hash[:description]
+          query_parameters[:submitted_by] = hash[:requestor] if hash[:requestor]
+          query_parameters[:owner] = hash[:assignee] if hash[:assignee]
+          query_parameters[:priority] = hash[:priority] if hash[:priority]
+          query_parameters[:work_product] = hash[:work_product] if hash[:work_product]
+          query_parameters
         end
         
     end
