@@ -7,7 +7,7 @@ source "http://rubygems.org"
 # Include everything needed to run rake, tests, features, etc.
 
 gem "ticketmaster"
-gem "rally_rest_api"
+gem "rally_rest_api", "~> 1.0.3"
 
 group :development do
   gem "rspec", "~> 2.3.0"
