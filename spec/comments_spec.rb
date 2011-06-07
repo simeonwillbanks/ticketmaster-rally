@@ -38,7 +38,7 @@ describe "Ticketmaster::Provider::Rally::Comment" do
    
   it "should be able to create a new comment" do
     # Add discussion for User Story US8: Order picture package
-    ticket = @project.ticket(:id => "2712836091")
+    ticket = @project.ticket(:id => 2712836091)
     comment = ticket.comment!(:body => 'Pictures will be available for purchase!')
     comment.should be_an_instance_of(@klass)
   end 
