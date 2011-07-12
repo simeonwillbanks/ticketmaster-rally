@@ -18,19 +18,26 @@ module TicketMaster::Provider
           project_id = args.shift
           ticket_id = args.shift
           @system_data = {:client => comment}
-          creation_date_parsed = Time.parse(comment.creation_date)
           hash = {
             :oid         => comment.oid,
             :project_id  => project_id,
             :ticket_id   => ticket_id,
             :author      => comment.user_name,
             :body        => comment.text,
-            :created_at  => creation_date_parsed,
-            :updated_at  => creation_date_parsed,
+            :created_at  => comment.creation_date,
+            :updated_at  => comment.creation_date,
             :post_number => comment.post_number,
           }
           super(hash)
         end
+      end
+
+      def created_at
+        Time.parse(self[:created_at])
+      end
+
+      def updated_at
+        Time.parse(self[:updated_at])
       end
 
       # Rally REST API aliases String and Fixnum :to_q :to_s

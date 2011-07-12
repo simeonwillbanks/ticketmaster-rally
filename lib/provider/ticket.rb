@@ -31,8 +31,8 @@ module TicketMaster::Provider
             :requestor => ticket.submitted_by,
             :resolution => ticket.schedule_state, 
             :status => ticket.state,
-            :created_at => Time.parse(ticket.creation_date),
-            :updated_at => Time.parse(ticket.last_update_date)
+            :created_at => ticket.creation_date,
+            :updated_at => ticket.last_update_date
           }
           # Rally optional attributes
           hash[:assignee] = ticket.owner if ticket.owner
@@ -47,6 +47,14 @@ module TicketMaster::Provider
           hash[:priority] = ticket.priority unless ticket.priority == "None"
           super(hash)
         end
+      end
+
+      def created_at
+        Time.parse(self[:created_at])
+      end
+
+      def updated_at
+        Time.parse(self[:updated_at])
       end
       
       # Rally REST API aliases String and Fixnum :to_q :to_s
