@@ -24,6 +24,15 @@ module TicketMaster::Provider
     
     # declare needed overloaded methods here
     
+    def valid?
+      begin
+        TicketMaster::Provider::Rally.rally.find_all(:project).first
+        true
+      rescue
+        false
+      end
+    end
+
     def self.rally=(rally_instance)
       @rally = rally_instance
     end
@@ -31,7 +40,7 @@ module TicketMaster::Provider
     def self.rally
       @rally
     end
-    
+
   end
 end
 
