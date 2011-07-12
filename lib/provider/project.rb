@@ -18,11 +18,19 @@ module TicketMaster::Provider
           hash = {:oid => project.oid, 
                   :name => project.name, 
                   :description => project.description,
-                  :created_at => Time.parse(project.creation_date), 
+                  :created_at => project.creation_date, 
                   # Rally Project object does not have a modified time
-                  :updated_at => Time.parse(project.creation_date)}           
+                  :updated_at => project.creation_date}           
           super hash
         end
+      end
+
+      def created_at
+        Time.parse(self[:created_at])
+      end
+
+      def updated_at
+        Time.parse(self[:updated_at])
       end
 
       # Rally REST API aliases String and Fixnum :to_q :to_s
