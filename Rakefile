@@ -17,8 +17,8 @@ Jeweler::Tasks.new do |gem|
   gem.license = "MIT"
   gem.summary = %Q{Ticketmaster provider for Rally's Ruby REST API}
   gem.description = %Q{This is a provider for ticketmaster. It provides interoperability with Rally and it's project planning system through the ticketmaster gem}
-  gem.email = ["sfw@simeonfosterwillbanks.com", "rob@notch8.com"]
-  gem.authors = ["Simeon F. Willbanks", "Rob Kaufman"]
+  gem.email = ["sfw@simeonfosterwillbanks.com", "rob@notch8.com", "george.rafael@gmail.com"]
+  gem.authors = ["Simeon F. Willbanks", "Rob Kaufman", "Rafael George"]
   # Include your dependencies below. Runtime dependencies are required when using your gem,
   # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
   #  gem.add_runtime_dependency 'jabber4r', '> 0.1'
