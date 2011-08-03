@@ -18,8 +18,8 @@ module TicketMaster::Provider
       end
       TicketMaster::Provider::Rally.rally = RallyRestAPI.new(:username => auth.username, 
                                                              :password => auth.password,
-                                                             :base_url => auth.url,
-                                                             :logger => RALLY_LOGGER_PATH ? Logger.new(RALLY_LOGGER_PATH) : nil)
+                                                             :base_url => auth.url)
+                                                             
     end
     
     # declare needed overloaded methods here
