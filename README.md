@@ -5,7 +5,10 @@ This is a provider for [ticketmaster](http://ticketrb.com). It provides interope
 # Usage and Examples
 
 First we have to instantiate a new ticketmaster instance, your Rally installation should have api access enable:
-    rally = TicketMaster.new(:rally, {:username=> 'foo', :password => "bar", :url => "https://community.rallydev.com/slm"}) 
+
+      rally = TicketMaster.new(:rally, {:username=> 'foo', 
+                                        :password => "bar", 
+                                        :url => "https://community.rallydev.com/slm"}) 
 
 If you do not pass in the url, username and password, you won't get any information.
 
@@ -21,16 +24,26 @@ If you do not pass in the url, username and password, you won't get any informat
 	
 ## Finding Tickets(Defects,Tasks)
 
-Coming Soon
+    # Ticket with ID of 1
+    ticket = project.ticket(1)
+    # Tickets with ID's of 1 and 2
+    tickets = project.tickets([1,2])
+    # All tickets
+    tickets = project.tickets
 
 ## Open Tickets
     
-Coming Soon
+    # Create a new ticket
+    ticket = project.ticket!(:title => 'New Ticket', 
+                             :description => 'Description')
 
 ## Finding comments
-      
-Coming Soon
-
+  
+    # Finding all comments 
+    comments = ticket.comments
+    # Finding a comment with ID 1
+    comment = ticket.comment(1)
+  
 ## Requirements
 
 * rubygems (obviously)
